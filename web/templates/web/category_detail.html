@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ category.name }}</h1>
+
+{% for product in products %}
+    <div>
+        <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+        <p>{{ product.price }} ₽</p>
+    </div>
+{% empty %}
+    <p>В этой категории пока нет товаров.</p>
+{% endfor %}
+{% endblock %}
