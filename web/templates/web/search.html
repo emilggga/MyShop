@@ -1,10 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "web/base.html" %}
+
+{% block title %}Поиск{% endblock %}
+
+{% block content %}
+<h1>Поиск товаров</h1>
+
+{% if query %}
+    <p>Результаты по запросу: <strong>{{ query }}</strong></p>
+{% endif %}
+
+<div class="products-grid">
+    {% for product in products %}
+        <div class="card">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.short_description }}</p>
+                <div class="price">{{ product.final_price }} ₽</div>
+                <a href="{% url 'product_detail' product.slug %}" class="btn">Подробнее</a>
+            </div>
+        </div>
+    {% empty %}
+        <p>Ничего не найдено.</p>
+    {% endfor %}
+</div>
+{% endblock %}

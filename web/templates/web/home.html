@@ -1,885 +1,241 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Главная | Интернет-магазин{% endblock %}</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "web/base.html" %}
 
-        :root {
-            --bg: #f5f7fb;
-            --white: #ffffff;
-            --dark: #1f2937;
-            --gray: #6b7280;
-            --light-gray: #e5e7eb;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --accent: #f59e0b;
-            --danger: #ef4444;
-            --success: #10b981;
-            --shadow: 0 10px 30px rgba(0,0,0,0.08);
-            --radius: 18px;
-        }
+{% block title %}Главная{% endblock %}
 
-        body {
-            font-family: Arial, sans-serif;
-            background: var(--bg);
-            color: var(--dark);
-            line-height: 1.5;
-        }
+{% block content %}
+<style>
+    * {
+        box-sizing: border-box;
+    }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
+    .shop-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
 
-        img {
-            max-width: 100%;
-            display: block;
-        }
+    .filters {
+        background: white;
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 20px;
+        overflow: hidden;
+    }
 
-        .container {
-            width: min(1400px, 92%);
-            margin: 0 auto;
-        }
+    .filter-group {
+        margin-bottom: 20px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid #eee;
+    }
 
-        .topbar {
-            background: #111827;
-            color: #fff;
-            font-size: 14px;
-            padding: 10px 0;
-        }
+    .filter-group:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
 
-        .topbar-inner {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    .filter-group h3 {
+        margin: 0 0 12px 0;
+        font-size: 18px;
+    }
 
-        .main-header {
-            background: var(--white);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+    .filter-group input[type="text"],
+    .filter-group input[type="number"],
+    .filter-group select {
+        width: 100%;
+        max-width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 10px;
+        display: block;
+    }
 
-        .main-header-inner {
-            display: grid;
-            grid-template-columns: 220px 1fr auto;
-            gap: 20px;
-            align-items: center;
-            padding: 18px 0;
-        }
+    .price-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
 
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--primary);
-        }
+    .filter-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
 
-        .search-form {
-            display: flex;
-            align-items: center;
-            background: #f3f4f6;
-            border-radius: 999px;
-            overflow: hidden;
-            border: 1px solid #d1d5db;
-        }
+    .catalog-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-        .search-form input {
-            width: 100%;
-            border: none;
-            background: transparent;
-            padding: 14px 18px;
-            outline: none;
-            font-size: 15px;
-        }
+    .catalog-list a {
+        text-decoration: none;
+        color: #222;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #f4f6f9;
+    }
 
-        .search-form button {
-            border: none;
-            background: var(--primary);
-            color: white;
-            padding: 14px 24px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: .2s;
-        }
+    .catalog-list a:hover {
+        background: #e9eef8;
+    }
 
-        .search-form button:hover {
-            background: var(--primary-hover);
-        }
+    .filter-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+    }
 
-        .header-actions {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+    .filter-btn,
+    .filter-reset {
+        width: 100%;
+        max-width: 100%;
+        display: block;
+        text-align: center;
+        padding: 12px 14px;
+        border: none;
+        border-radius: 10px;
+        text-decoration: none;
+        cursor: pointer;
+    }
 
-        .header-btn {
-            background: #f3f4f6;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            transition: .2s;
-        }
+    .filter-btn {
+        background: #2563eb;
+        color: white;
+    }
 
-        .header-btn:hover {
-            background: #e5e7eb;
-        }
+    .filter-reset {
+        background: #6b7280;
+        color: white;
+    }
 
-        .hero {
-            position: relative;
-            min-height: 420px;
-            display: flex;
-            align-items: center;
-            background:
-                linear-gradient(rgba(17,24,39,0.55), rgba(17,24,39,0.55)),
-                url("{% static 'images/hero-banner.jpg' %}") center/cover no-repeat;
-            color: white;
-        }
+    .products-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
 
-        .hero-content {
-            max-width: 700px;
-            padding: 60px 0;
-        }
-
-        .hero h1 {
-            font-size: 48px;
-            line-height: 1.1;
-            margin-bottom: 18px;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: #e5e7eb;
-            margin-bottom: 28px;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 14px 22px;
-            border-radius: 12px;
-            font-weight: bold;
-            transition: .2s;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-light {
-            background: white;
-            color: var(--dark);
-        }
-
-        .btn-light:hover {
-            background: #f3f4f6;
-        }
-
-        .section {
-            padding: 40px 0;
-        }
-
-        .section-title {
-            font-size: 30px;
-            margin-bottom: 24px;
-        }
-
-        .catalog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 18px;
-        }
-
-        .catalog-card {
-            background: var(--white);
-            border-radius: var(--radius);
-            padding: 22px;
-            box-shadow: var(--shadow);
-            transition: .25s;
-            border: 1px solid transparent;
-        }
-
-        .catalog-card:hover {
-            transform: translateY(-4px);
-            border-color: #dbeafe;
-        }
-
-        .catalog-card h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .catalog-card p {
-            color: var(--gray);
-            font-size: 14px;
-        }
-
+    @media (max-width: 900px) {
         .shop-layout {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 28px;
-            align-items: start;
+            grid-template-columns: 1fr;
         }
 
         .filters {
-            background: var(--white);
-            border-radius: var(--radius);
-            padding: 24px;
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 100px;
+            position: static;
         }
+    }
+</style>
 
-        .filters h3 {
-            margin-bottom: 20px;
-            font-size: 22px;
-        }
+<h1>Каталог товаров</h1>
 
-        .filter-group {
-            margin-bottom: 24px;
-            border-bottom: 1px solid var(--light-gray);
-            padding-bottom: 18px;
-        }
-
-        .filter-group:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-
-        .filter-group h4 {
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        .filter-option {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            color: var(--gray);
-            font-size: 14px;
-        }
-
-        .filter-group input[type="text"],
-        .filter-group input[type="number"],
-        .filter-group select {
-            width: 100%;
-            padding: 11px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 10px;
-            outline: none;
-        }
-
-        .price-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        .filter-submit,
-        .filter-reset {
-            width: 100%;
-            border: none;
-            padding: 13px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .filter-submit {
-            background: var(--primary);
-            color: white;
-        }
-
-        .filter-submit:hover {
-            background: var(--primary-hover);
-        }
-
-        .filter-reset {
-            background: #f3f4f6;
-            color: var(--dark);
-        }
-
-        .products-topbar {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-
-        .products-topbar .result-count {
-            color: var(--gray);
-        }
-
-        .sort-form select {
-            padding: 11px 14px;
-            border-radius: 10px;
-            border: 1px solid #d1d5db;
-            background: white;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 22px;
-        }
-
-        .product-card {
-            background: var(--white);
-            border-radius: var(--radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: .25s;
-        }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .product-image-wrap {
-            position: relative;
-            background: #f9fafb;
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .product-image-wrap img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .badge {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            background: var(--accent);
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            padding: 6px 10px;
-            border-radius: 999px;
-        }
-
-        .badge-sale {
-            background: var(--danger);
-        }
-
-        .product-info {
-            padding: 18px;
-        }
-
-        .product-category {
-            color: var(--gray);
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .product-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            min-height: 48px;
-        }
-
-        .product-desc {
-            color: var(--gray);
-            font-size: 14px;
-            margin-bottom: 14px;
-            min-height: 42px;
-        }
-
-        .product-price-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-
-        .price {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--dark);
-        }
-
-        .old-price {
-            color: #9ca3af;
-            text-decoration: line-through;
-            font-size: 15px;
-        }
-
-        .product-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .buy-btn,
-        .details-btn {
-            flex: 1;
-            text-align: center;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            transition: .2s;
-        }
-
-        .buy-btn {
-            background: var(--primary);
-            color: white;
-        }
-
-        .buy-btn:hover {
-            background: var(--primary-hover);
-        }
-
-        .details-btn {
-            background: #f3f4f6;
-        }
-
-        .details-btn:hover {
-            background: #e5e7eb;
-        }
-
-        .empty-box {
-            background: var(--white);
-            padding: 40px;
-            border-radius: var(--radius);
-            text-align: center;
-            color: var(--gray);
-            box-shadow: var(--shadow);
-        }
-
-        .promo-strip {
-            margin-top: 40px;
-            background: linear-gradient(135deg, #2563eb, #1e40af);
-            color: white;
-            border-radius: 24px;
-            padding: 36px;
-            display: grid;
-            grid-template-columns: 1.2fr .8fr;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .promo-strip h3 {
-            font-size: 30px;
-            margin-bottom: 12px;
-        }
-
-        .promo-strip p {
-            color: #dbeafe;
-            margin-bottom: 18px;
-        }
-
-        .footer {
-            background: #111827;
-            color: #d1d5db;
-            margin-top: 60px;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr 1fr 1fr;
-            gap: 30px;
-            padding: 50px 0 30px;
-        }
-
-        .footer h4 {
-            color: white;
-            margin-bottom: 16px;
-        }
-
-        .footer ul {
-            list-style: none;
-        }
-
-        .footer ul li {
-            margin-bottom: 10px;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255,255,255,0.08);
-            padding: 18px 0;
-            text-align: center;
-            font-size: 14px;
-            color: #9ca3af;
-        }
-
-        @media (max-width: 1100px) {
-            .shop-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .filters {
-                position: static;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .promo-strip {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 800px) {
-            .main-header-inner {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h1 {
-                font-size: 34px;
-            }
-
-            .footer-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .products-topbar {
-                align-items: stretch;
-            }
-        }
-
-        @media (max-width: 520px) {
-            .hero {
-                min-height: 340px;
-            }
-
-            .hero h1 {
-                font-size: 28px;
-            }
-
-            .catalog-grid,
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .product-actions {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <div class="topbar">
-        <div class="container topbar-inner">
-            <div>Бесплатная доставка от 3000 ₽</div>
-            <div>Телефон: +7 (999) 123-45-67 | Email: shop@example.com</div>
-        </div>
-    </div>
-
-    <header class="main-header">
-        <div class="container main-header-inner">
-            <a href="{% url 'home' %}" class="logo">MyShop</a>
-
-            <form method="get" action="" class="search-form">
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="Поиск товаров..."
-                    value="{{ request.GET.q }}"
-                >
-                <button type="submit">Найти</button>
-            </form>
-
-            <div class="header-actions">
-                <a href="#" class="header-btn">Избранное</a>
-                <a href="#" class="header-btn">Корзина</a>
-                <a href="#" class="header-btn">Войти</a>
+<div class="shop-layout">
+    <aside class="filters">
+        <form method="get" action="{% url 'home' %}">
+            <div class="filter-group">
+                <h3>Поиск</h3>
+                <input type="text" name="q" placeholder="Название товара" value="{{ request.GET.q }}">
             </div>
-        </div>
-    </header>
 
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Современный интернет-магазин для ваших покупок</h1>
-                <p>
-                    Выбирайте лучшие товары, фильтруйте по параметрам, находите нужное за секунды
-                    и заказывайте с удобной доставкой.
-                </p>
-                <div class="hero-actions">
-                    <a href="#catalogs" class="btn btn-primary">Смотреть каталоги</a>
-                    <a href="#products" class="btn btn-light">Перейти к товарам</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <main>
-        <section class="section" id="catalogs">
-            <div class="container">
-                <h2 class="section-title">Каталоги</h2>
-
-                <div class="catalog-grid">
+            <div class="filter-group">
+                <h3>Категории</h3>
+                <div class="catalog-list">
+                    <a href="{% url 'home' %}">Все товары</a>
                     {% for category in categories %}
-                        <a href="" class="catalog-card">
-                            <h3>{{ category.name }}</h3>
-                            <p>{{ category.description|default:"Перейти к просмотру товаров категории" }}</p>
-                        </a>
-                    {% empty %}
-                        <div class="catalog-card">
-                            <h3>Каталоги пока не добавлены</h3>
-                            <p>Создайте категории в админке Django.</p>
-                        </div>
+                        <a href="{% url 'category_detail' category.slug %}">{{ category.name }}</a>
                     {% endfor %}
                 </div>
             </div>
-        </section>
 
-        <section class="section" id="products">
-            <div class="container">
-                <div class="shop-layout">
-                    <aside class="filters">
-                        <h3>Фильтры</h3>
-
-                        <form method="get" action="">
-                            <div class="filter-group">
-                                <h4>Поиск</h4>
-                                <input
-                                    type="text"
-                                    name="q"
-                                    placeholder="Название товара..."
-                                    value="{{ request.GET.q }}"
-                                >
-                            </div>
-
-                            <div class="filter-group">
-                                <h4>Категория</h4>
-                                {% for category in categories %}
-                                    <label class="filter-option">
-                                        <input
-                                            type="radio"
-                                            name="category"
-                                            value="{{ category.slug }}"
-                                            {% if request.GET.category == category.slug %}checked{% endif %}
-                                        >
-                                        <span>{{ category.name }}</span>
-                                    </label>
-                                {% endfor %}
-                            </div>
-
-                            <div class="filter-group">
-                                <h4>Цена</h4>
-                                <div class="price-row">
-                                    <input type="number" name="price_from" placeholder="От" value="{{ request.GET.price_from }}">
-                                    <input type="number" name="price_to" placeholder="До" value="{{ request.GET.price_to }}">
-                                </div>
-                            </div>
-
-                            <div class="filter-group">
-                                <h4>Сортировка</h4>
-                                <select name="sort">
-                                    <option value="">По умолчанию</option>
-                                    <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Цена по возрастанию</option>
-                                    <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Цена по убыванию</option>
-                                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>По названию</option>
-                                    <option value="new" {% if request.GET.sort == 'new' %}selected{% endif %}>Сначала новые</option>
-                                </select>
-                            </div>
-
-                            <div class="filter-group">
-                                <h4>Наличие</h4>
-                                <label class="filter-option">
-                                    <input type="checkbox" name="in_stock" value="1" {% if request.GET.in_stock %}checked{% endif %}>
-                                    <span>Только в наличии</span>
-                                </label>
-                                <label class="filter-option">
-                                    <input type="checkbox" name="sale" value="1" {% if request.GET.sale %}checked{% endif %}>
-                                    <span>Только со скидкой</span>
-                                </label>
-                            </div>
-
-                            <button type="submit" class="filter-submit">Применить фильтры</button>
-                            <a href="{% url 'home' %}">
-                                <button type="button" class="filter-reset">Сбросить</button>
-                            </a>
-                        </form>
-                    </aside>
-
-                    <section class="products-area">
-                        <div class="products-topbar">
-                            <div>
-                                <h2 class="section-title" style="margin-bottom: 6px;">Популярные товары</h2>
-                                <div class="result-count">
-                                    Найдено товаров: {{ products|length }}
-                                </div>
-                            </div>
-
-                            <form method="get" class="sort-form">
-                                <input type="hidden" name="q" value="{{ request.GET.q }}">
-                                <input type="hidden" name="category" value="{{ request.GET.category }}">
-                                <input type="hidden" name="price_from" value="{{ request.GET.price_from }}">
-                                <input type="hidden" name="price_to" value="{{ request.GET.price_to }}">
-                                {% if request.GET.in_stock %}
-                                    <input type="hidden" name="in_stock" value="1">
-                                {% endif %}
-                                {% if request.GET.sale %}
-                                    <input type="hidden" name="sale" value="1">
-                                {% endif %}
-
-                                <select name="sort" onchange="this.form.submit()">
-                                    <option value="">Сортировка</option>
-                                    <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Цена ↑</option>
-                                    <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Цена ↓</option>
-                                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>Название</option>
-                                    <option value="new" {% if request.GET.sort == 'new' %}selected{% endif %}>Новинки</option>
-                                </select>
-                            </form>
-                        </div>
-{% block Content%}
-                        {% if products %}
-                            <div class="products-grid">
-                                {% for product in products %}
-                                    <div class="product-card">
-                                        <div class="product-image-wrap">
-                                            {% if product.image %}
-                                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                                            {% else %}
-                                                <img src="{% static 'images/no-image.jpg' %}" alt="{{ product.name }}">
-                                            {% endif %}
-
-                                            {% if product.discount_price %}
-                                                <span class="badge badge-sale">Скидка</span>
-                                            {% elif product.is_new %}
-                                                <span class="badge">Новинка</span>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="product-info">
-                                            <div class="product-category">
-                                                {{ product.category.name }}
-                                            </div>
-
-                                            <div class="product-title">
-                                                {{ product.name }}
-                                            </div>
-
-                                            <div class="product-desc">
-                                                {{ product.short_description|default:product.description|truncatechars:90 }}
-                                            </div>
-
-                                            <div class="product-price-row">
-                                                {% if product.discount_price %}
-                                                    <div class="price">{{ product.discount_price }} ₽</div>
-                                                    <div class="old-price">{{ product.price }} ₽</div>
-                                                {% else %}
-                                                    <div class="price">{{ product.price }} ₽</div>
-                                                {% endif %}
-                                            </div>
-
-                                            <div class="product-actions">
-                                                <a href="" class="details-btn">Подробнее</a>
-                                                <a href="#" class="buy-btn">В корзину</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            <div class="empty-box">
-                                <h3 style="margin-bottom: 10px;">Товары не найдены</h3>
-                                <p>Попробуйте изменить параметры поиска или фильтры.</p>
-                            </div>
-                        {% endif %}
-{% endblock %}
-                        <div class="promo-strip">
-                            <div>
-                                <h3>Скидки до 40% на популярные категории</h3>
-                                <p>
-                                    Следите за новыми поступлениями, специальными предложениями и сезонными акциями.
-                                </p>
-                                <a href="#" class="btn btn-light">Смотреть акции</a>
-                            </div>
-                            <div>
-                                <img src="{% static 'images/promo.png' %}" alt="Акции магазина">
-                            </div>
-                        </div>
-                    </section>
-                </div>
+            <div class="filter-group">
+                <h3>Фильтр по категории</h3>
+                <select name="category">
+                    <option value="">Все категории</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if request.GET.category == category.slug %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
-        </section>
-    </main>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div>
-                    <h4>MyShop</h4>
-                    <p>
-                        Удобный интернет-магазин с большим выбором товаров,
-                        быстрым поиском и гибкой системой фильтрации.
-                    </p>
-                </div>
-
-                <div>
-                    <h4>Категории</h4>
-                    <ul>
-                        {% for category in categories|slice:":5" %}
-                            <li>
-                                <a href="">{{ category.name }}</a>
-                            </li>
-                        {% empty %}
-                            <li>Категории не добавлены</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <div>
-                    <h4>Информация</h4>
-                    <ul>
-                        <li><a href="#">О магазине</a></li>
-                        <li><a href="#">Доставка</a></li>
-                        <li><a href="#">Оплата</a></li>
-                        <li><a href="#">Контакты</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h4>Контакты</h4>
-                    <ul>
-                        <li>+7 (999) 123-45-67</li>
-                        <li>shop@example.com</li>
-                        <li>Москва, ул. Примерная, 10</li>
-                    </ul>
+            <div class="filter-group">
+                <h3>Цена</h3>
+                <div class="price-row">
+                    <input type="number" name="price_from" placeholder="От" value="{{ request.GET.price_from }}">
+                    <input type="number" name="price_to" placeholder="До" value="{{ request.GET.price_to }}">
                 </div>
             </div>
 
-            <div class="footer-bottom">
-                © {% now "Y" %} MyShop. Все права защищены.
+            <div class="filter-group">
+                <h3>Сортировка</h3>
+                <select name="sort">
+                    <option value="">По умолчанию</option>
+                    <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>Цена ↑</option>
+                    <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>Цена ↓</option>
+                    <option value="name" {% if request.GET.sort == 'name' %}selected{% endif %}>По названию</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <h3>Дополнительно</h3>
+                <label class="filter-option">
+                    <input type="checkbox" name="in_stock" value="1" {% if request.GET.in_stock == '1' %}checked{% endif %}>
+                    Только в наличии
+                </label>
+                <label class="filter-option">
+                    <input type="checkbox" name="sale" value="1" {% if request.GET.sale == '1' %}checked{% endif %}>
+                    Только со скидкой
+                </label>
+            </div>
+
+            <div class="filter-buttons">
+                <button type="submit" class="filter-btn">Применить</button>
+                <a href="{% url 'home' %}" class="filter-reset">Сбросить</a>
+            </div>
+        </form>
+    </aside>
+
+    <section>
+        <div class="products-top">
+            <div>
+                <h2 style="margin: 0;">Товары</h2>
+                <p style="margin: 6px 0 0 0;">Найдено: {{ products|length }}</p>
             </div>
         </div>
-    </footer>
 
-</body>
-</html>
+        <div class="products-grid">
+            {% for product in products %}
+                <div class="card">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h3>{{ product.name }}</h3>
+                        <p>{{ product.short_description }}</p>
+
+                        <div class="price">
+                            {{ product.final_price }} ₽
+                            {% if product.discount_price %}
+                                <span class="old-price">{{ product.price }} ₽</span>
+                            {% endif %}
+                        </div>
+
+                        <a href="{% url 'product_detail' product.slug %}" class="btn">Подробнее</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Товары не найдены.</p>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

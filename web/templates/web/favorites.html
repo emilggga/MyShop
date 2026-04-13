@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "web/base.html" %}
+
+{% block title %}Избранное{% endblock %}
+
+{% block content %}
+<h1>Избранное</h1>
+
+<div class="products-grid">
+    {% for item in favorites %}
+        <div class="card">
+            {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+            {% endif %}
+            <div class="card-body">
+                <h3>{{ item.product.name }}</h3>
+                <div class="price">{{ item.product.final_price }} ₽</div>
+                <a href="{% url 'product_detail' item.product.slug %}" class="btn">Подробнее</a>
+            </div>
+        </div>
+    {% empty %}
+        <p>Избранное пусто.</p>
+    {% endfor %}
+</div>
+{% endblock %}

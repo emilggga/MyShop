@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends "web/base.html" %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<h1>Корзина</h1>
+
+{% for item in cart_items %}
+    <div class="card" style="margin-bottom: 15px;">
+        <div class="card-body">
+            <h3>{{ item.product.name }}</h3>
+            <p>Количество: {{ item.quantity }}</p>
+            <p>Цена: {{ item.product.final_price }} ₽</p>
+            <p><strong>Сумма: {{ item.total_price }} ₽</strong></p>
+            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">Удалить</a>
+        </div>
+    </div>
+{% empty %}
+    <p>Корзина пуста.</p>
+{% endfor %}
+
+<h2>Итого: {{ total }} ₽</h2>
+{% endblock %}
